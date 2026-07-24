@@ -7,8 +7,8 @@ public class RegisterRequestDtoValidator : AbstractValidator<RegisterRequestDto>
 {
     public RegisterRequestDtoValidator()
     {
-        RuleFor(x => x.Username).NotEmpty().MinimumLength(3);
-        RuleFor(x => x.Email).NotEmpty().EmailAddress();
-        RuleFor(x => x.Password).NotEmpty().MinimumLength(6).WithMessage("Password must be at least 6 characters long.");
+        RuleFor(x => x.Username).NotEmpty().MinimumLength(3).WithMessage("El nombre de usuario debe tener al menos 3 caracteres.");
+        RuleFor(x => x.Email).NotEmpty().EmailAddress().WithMessage("El email no es válido.");
+        RuleFor(x => x.Password).Password();
     }
 }

@@ -1,3 +1,4 @@
+using ApiBase.API.Extensions;
 using ApiBase.Application.DTOs;
 using ApiBase.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -18,17 +19,22 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequestDto request)
     {
+        // Los errores (409 Conflict, 400 Bad Request) ahora son lanzados como excepciones
+        // por el servicio y capturados por el middleware, así que si llega aquí, todo salió bien.
         var response = await _authService.RegisterAsync(request);
-        if (!response.Success) return BadRequest(response);
-        return Ok(response);
+        
+        // Usamos el extension method que estandariza la respuesta y agrega el mensaje
+        return this.ApiCreated(nameof(Register), new {}, response);
     }
 
     [HttpPost("login")]
     public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
     {
         var response = await _authService.LoginAsync(request);
-        if (!response.Success) return Unauthorized(response);
-        return Ok(response);
+        if (!response.Success) 
+            throw new Common.Exceptions.UnauthorizedException(response.Message);
+            
+        return this.ApiOk(response, "Inicio de sesión exitoso");
     }
 
     [HttpPost("refresh-token")]

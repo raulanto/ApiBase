@@ -28,14 +28,14 @@ public class AuthService : IAuthService
     public async Task<AuthResponseDto> RegisterAsync(RegisterRequestDto request)
     {
         if (await _userRepository.GetByEmailAsync(request.Email) != null)
-            return new AuthResponseDto { Message = "Email already exists", Success = false };
+            throw new Common.Exceptions.ConflictException("email", "El email ya está registrado.");
 
         if (await _userRepository.GetByUsernameAsync(request.Username) != null)
-            return new AuthResponseDto { Message = "Username already exists", Success = false };
+            throw new Common.Exceptions.ConflictException("username", "El nombre de usuario ya está en uso.");
 
         var userRole = await _roleRepository.GetByNameAsync("User");
         if (userRole == null)
-            return new AuthResponseDto { Message = "Default role not found", Success = false };
+            throw new Common.Exceptions.NotFoundException("El rol por defecto no fue encontrado.");
 
         var user = new User
         {
